@@ -145,7 +145,6 @@
                     success: function(response) {
                         var data = JSON.parse(response);
                         var options = '<option value="">Pilih Provinsi</option>';
-                        console.log(data);
                         $.each(data.rajaongkir.results, function(index, provinsi) {
                             options += '<option value="' + provinsi.province_id + '">' + provinsi.province + '</option>';
                         });
@@ -213,19 +212,33 @@
                         data: {
                             'awal': $("#kota_utama").val(),
                             'tujuan': $("#kota_destinasi").val(),
-                            "berat":$("#berat_barang").val(),
-                            "kurir":$("#kurir_barang").val(),
+                            "berat_barang": $("#berat_barang").val(),
+                            "kurir": $("#kurir_barang").val(),
                         },
                         beforeSend: function(xhr) {
                             // Show the loader
                             $('#smartwizard').smartWizard("loader", "show");
                         }
                     }).done(function(res) {
+                        var data = JSON.parse(res);
+                        console.log(data);
+                        var result = ""; // Inisialisasi dengan string kosong
+                        $.each(data.rajaongkir.results[0].costs, function(index, detailnya) {
+                            result += `<table class='mt-2'><tr><td>Nama Service </td><td>: ${detailnya.description}</td></tr>
+               <tr><td>Harga </td><td>: Rp. ${detailnya.cost[0].value}</td></tr>
+               <tr><td>Waktu Pengiriman </td><td>: ${detailnya.cost[0].etd} Hari</td></tr></table>`;
+                        });
+
                         let html = `<div class="card w-100" >
-                       <div class="card-body">
-                           <p class="card-text">${res}</p>
-                       </div>
-                   </div>`;
+                <div class="card-body">
+                    <table>
+                        <tr><td>Kota Utama </td><td>: ${data.rajaongkir.origin_details.type}  ${data.rajaongkir.origin_details.city_name}</td></tr>
+                        <tr><td>Kota Tujuan </td><td>: ${data.rajaongkir.destination_details.type}  ${data.rajaongkir.destination_details.city_name}</td></tr>
+                        <tr><td>Kurir </td><td>: ${data.rajaongkir.results[0].name}</td></tr>
+                    </table>
+                        ${result} <!-- Tambahkan variabel result di sini -->
+                </div>
+            </div>`;
                         callback(html);
                         $('#smartwizard').smartWizard("loader", "hide");
                     }).fail(function(err) {
